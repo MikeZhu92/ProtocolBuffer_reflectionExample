@@ -1,11 +1,11 @@
 
-##About this
+## About this
 This is some code of Protocol Buffer(pb) in C++ releated to reflection.
 
 
 
 
-##It contains some C++ code
+## It contains some C++ code
 
 * createMessage by your pb class name
 * set reflection Message(recursively, if there is sub message)
@@ -13,7 +13,7 @@ This is some code of Protocol Buffer(pb) in C++ releated to reflection.
 * dealing with repeat field
 
 
-##Thanks
+## Related links
 
 
 * [Protocol Buffer](https://github.com/google/protobuf) 
