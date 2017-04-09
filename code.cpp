@@ -10,12 +10,12 @@ using namespace std;
 	Input: the name of your pb class(should exactly be the same with the name in *.proto)
 	Output: pointer to the new pb message created by the pb name 
 	used to create a message by its name dynamically, especially in runtime after compiled
-
+	 
 */
 google::protobuf::Message *createMessage(const std::string &typeName) {
     google::protobuf::Message *message = NULL;
     const google::protobuf::Descriptor *descriptor = google::protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(typeName);
-
+    //only find message types that compiled together, which means that each time you modify .proto, you have to re-link xx.pb.cc, xx.pb.h 
     if (descriptor) {
         const google::protobuf::Message *prototype = google::protobuf::MessageFactory::generated_factory()->GetPrototype(descriptor);
 
@@ -27,6 +27,33 @@ google::protobuf::Message *createMessage(const std::string &typeName) {
     return message;
 }
 
+/* dynamic create message support by looking at .proto */
+google::protobuf::compiler::DiskSourceTree sourceTree;
+google::protobuf::compiler::Importer importer(&sourceTree, &errorCollector);
+sourceTree.MapPath("", "./");//
+importer.Import("person.proto");
+
+//dynamic create message 
+google::protobuf::Message *createMessage(const std::string &type_name){
+    Message *message = NULL;
+    const Descriptor *descriptor = DescriptorPool::generated_pool()->FindMessageTypeByName(type_name);
+    if (descriptor){
+        const Message *prototype = MessageFactory::generated_factory()->GetPrototype(descriptor);
+        if (prototype){
+          message = prototype->New();
+        }
+    }else {
+        descriptor = importer.pool()->FindMessageTypeByName(type_name);
+	DynamicMessageFactory *dynamicMessageFactory = new DynamicMessageFactory();
+        if(descriptor){
+              message = dynamicMessageFactory->GetPrototype(descriptor)->New();
+        }else{
+              std::cerr << "not found message type " << type_name << std::endl;
+        }
+    }
+    return message;
+}
+/* dynamic create message support by looking at .proto */
 
 /*
 	Input: the pointer to the message need to delete
